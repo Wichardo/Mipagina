@@ -1,9 +1,1327 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>Mi primera página</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Health Business Dashboard</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
+  <style id="app-style">
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: #f8fafc;
+      color: #334155;
+    }
+    
+    .dashboard-btn {
+      transition: all 0.3s ease;
+      height: 100%;
+    }
+    
+    .dashboard-btn:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    }
+    
+    .view-transition {
+      transition: all 0.4s ease-in-out;
+    }
+    
+    .chart-container {
+      position: relative;
+      height: 300px;
+      width: 100%;
+    }
+    
+    .data-widget {
+      border-radius: 0.5rem;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+      background-color: white;
+      padding: 1.5rem;
+      height: 100%;
+    }
+    
+    .data-widget h3 {
+      font-size: 1.25rem;
+      font-weight: 600;
+      margin-bottom: 1rem;
+      color: #1e3a8a;
+    }
+    
+    .loading-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: rgba(255, 255, 255, 0.8);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 10;
+      border-radius: 0.5rem;
+    }
+    
+    .loading-spinner {
+      border: 4px solid #f3f3f3;
+      border-top: 4px solid #3b82f6;
+      border-radius: 50%;
+      width: 30px;
+      height: 30px;
+      animation: spin 1s linear infinite;
+    }
+    
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    
+    .fade-in {
+      animation: fadeIn 0.5s ease-in;
+    }
+    
+    @keyframes fadeIn {
+      0% { opacity: 0; }
+      100% { opacity: 1; }
+    }
+    
+    .back-button {
+      transition: all 0.2s ease;
+    }
+    
+    .back-button:hover {
+      transform: translateX(-3px);
+    }
+    
+    @media (max-width: 768px) {
+      .dashboard-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+    
+    @media (max-width: 640px) {
+      .dashboard-grid {
+        grid-template-columns: repeat(1, 1fr);
+      }
+    }
+  </style>
 </head>
-<body>
-  <h1>¡Hola mundo desde GitHub Pages!</h1>
+<body class="min-h-screen">
+  <div class="container mx-auto px-4 py-8">
+    <!-- Header -->
+    <header class="mb-10">
+      <!-- Removing the original h1 and p elements -->
+      <!-- <h1 class="text-3xl font-bold text-indigo-900 mb-2">Health Business Dashboard</h1>
+      <p class="text-gray-600">Monitoring your health business performance metrics</p> -->
+      
+      <!-- Adding responsive image banner with updated image source -->
+      <img src="https://scontent.fclq1-1.fna.fbcdn.net/v/t39.30808-6/496001772_1160887286081124_6993979094646914122_n.jpg?_nc_cat=102&ccb=1-7&_nc_sid=cc71e4&_nc_ohc=jVPRNQcEQiIQ7kNvwGsZFjh&_nc_oc=AdnT2YzE8nOhRgR4Jlh86Lae9h-r_k-4SP8y3LLe8J1ehHFJaVBe5NOlG3BLoPPAt8rCfkCCnOmW955_7SKCqJoP&_nc_zt=23&_nc_ht=scontent.fclq1-1.fna&_nc_gid=Umzs92MGKBqaqJgCzQPuZA&oh=00_AfIjpybV4XqGC10X9XyUzcCUVx21pg2kuQHGgixrP51fpQ&oe=683C5C35">
+    </header>
+
+    <!-- Home Screen with Icon Buttons -->
+    <div id="home-screen" class="fade-in">
+      <div class="dashboard-grid grid grid-cols-4 gap-6 mb-8">
+        <div class="dashboard-btn bg-white rounded-lg shadow-md p-6 flex flex-col items-center justify-center cursor-pointer" data-section="patients">
+          <div class="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mb-4">
+            <i class="fas fa-user-injured text-2xl text-blue-600"></i>
+          </div>
+          <h2 class="text-lg font-semibold text-center">Vectores</h2>
+        </div>
+        
+        <div class="dashboard-btn bg-white rounded-lg shadow-md p-6 flex flex-col items-center justify-center cursor-pointer" data-section="appointments">
+          <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mb-4">
+            <i class="fas fa-calendar-check text-2xl text-green-600"></i>
+          </div>
+          <h2 class="text-lg font-semibold text-center">Salud mental</h2>
+        </div>
+        
+        <div class="dashboard-btn bg-white rounded-lg shadow-md p-6 flex flex-col items-center justify-center cursor-pointer" data-section="staff">
+          <div class="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mb-4">
+            <i class="fas fa-user-md text-2xl text-purple-600"></i>
+          </div>
+          <h2 class="text-lg font-semibold text-center">Tamizaje</h2>
+        </div>
+        
+        <div class="dashboard-btn bg-white rounded-lg shadow-md p-6 flex flex-col items-center justify-center cursor-pointer" data-section="finance">
+          <div class="w-16 h-16 bg-yellow-100 rounded-full flex items-center justify-center mb-4">
+            <i class="fas fa-chart-line text-2xl text-yellow-600"></i>
+          </div>
+          <h2 class="text-lg font-semibold text-center">Médico en tu casa</h2>
+        </div>
+        
+        <div class="dashboard-btn bg-white rounded-lg shadow-md p-6 flex flex-col items-center justify-center cursor-pointer" data-section="inventory">
+          <div class="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mb-4">
+            <i class="fas fa-pills text-2xl text-red-600"></i>
+          </div>
+          <h2 class="text-lg font-semibold text-center">Beneficencia pública</h2>
+        </div>
+        
+        <div class="dashboard-btn bg-white rounded-lg shadow-md p-6 flex flex-col items-center justify-center cursor-pointer" data-section="treatments">
+          <div class="w-16 h-16 bg-indigo-100 rounded-full flex items-center justify-center mb-4">
+            <i class="fas fa-heartbeat text-2xl text-indigo-600"></i>
+          </div>
+          <h2 class="text-lg font-semibold text-center">Ferias de la salud</h2>
+        </div>
+        
+        <div class="dashboard-btn bg-white rounded-lg shadow-md p-6 flex flex-col items-center justify-center cursor-pointer" data-section="marketing">
+          <div class="w-16 h-16 bg-pink-100 rounded-full flex items-center justify-center mb-4">
+            <i class="fas fa-bullhorn text-2xl text-pink-600"></i>
+          </div>
+          <h2 class="text-lg font-semibold text-center">COESPRIS</h2>
+        </div>
+        
+        <div class="dashboard-btn bg-white rounded-lg shadow-md p-6 flex flex-col items-center justify-center cursor-pointer" data-section="analytics">
+          <div class="w-16 h-16 bg-teal-100 rounded-full flex items-center justify-center mb-4">
+            <i class="fas fa-chart-pie text-2xl text-teal-600"></i>
+          </div>
+          <h2 class="text-lg font-semibold text-center">Vacunación</h2>
+        </div>
+      </div>
+    </div>
+
+    <!-- Detail Screens (initially hidden) -->
+    <div id="detail-screens" class="hidden">
+      <!-- Patients Section -->
+      <div id="patients-section" class="detail-section hidden">
+        <button class="back-button flex items-center text-indigo-600 mb-6 font-medium">
+          <i class="fas fa-arrow-left mr-2"></i> Back to Dashboard
+        </button>
+        <h2 class="text-2xl font-bold text-indigo-900 mb-4">Vectores</h2>
+        <p class="text-gray-700 mb-8">Monitor your patient demographics, appointment frequency, and health outcomes. Track patient satisfaction and retention rates to improve your service quality.</p>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+          <div class="data-widget">
+            <h3>Patient Demographics</h3>
+            <div class="chart-container">
+              <canvas id="patientDemographicsChart"></canvas>
+              <div class="loading-overlay">
+                <div class="loading-spinner"></div>
+              </div>
+            </div>
+          </div>
+          
+          <div class="data-widget">
+            <h3>New vs. Returning Patients</h3>
+            <div class="chart-container">
+              <canvas id="patientRetentionChart"></canvas>
+              <div class="loading-overlay">
+                <div class="loading-spinner"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="data-widget">
+          <h3>Patient Satisfaction Scores</h3>
+          <div class="chart-container">
+            <canvas id="satisfactionScoreChart"></canvas>
+            <div class="loading-overlay">
+              <div class="loading-spinner"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Appointments Section -->
+      <div id="appointments-section" class="detail-section hidden">
+        <button class="back-button flex items-center text-indigo-600 mb-6 font-medium">
+          <i class="fas fa-arrow-left mr-2"></i> Back to Dashboard
+        </button>
+        <h2 class="text-2xl font-bold text-indigo-900 mb-4">Salud mental</h2>
+        <p class="text-gray-700 mb-8">Track upcoming appointments, no-show rates, and appointment distribution by day and practitioner. Use this data to optimize scheduling and resource allocation.</p>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+          <div class="data-widget">
+            <h3>Upcoming Appointments</h3>
+            <div class="chart-container">
+              <canvas id="upcomingAppointmentsChart"></canvas>
+              <div class="loading-overlay">
+                <div class="loading-spinner"></div>
+              </div>
+            </div>
+          </div>
+          
+          <div class="data-widget">
+            <h3>No-Show Rate</h3>
+            <div class="chart-container">
+              <canvas id="noShowRateChart"></canvas>
+              <div class="loading-overlay">
+                <div class="loading-spinner"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="data-widget">
+          <h3>Appointments by Practitioner</h3>
+          <div class="chart-container">
+            <canvas id="appointmentsByPractitionerChart"></canvas>
+            <div class="loading-overlay">
+              <div class="loading-spinner"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Staff Section -->
+      <div id="staff-section" class="detail-section hidden">
+        <button class="back-button flex items-center text-indigo-600 mb-6 font-medium">
+          <i class="fas fa-arrow-left mr-2"></i> Back to Dashboard
+        </button>
+        <h2 class="text-2xl font-bold text-indigo-900 mb-4">Tamizaje</h2>
+        <p class="text-gray-700 mb-8">Monitor staff performance, productivity, and patient satisfaction ratings. Track staff availability and utilization to optimize workforce planning.</p>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+          <div class="data-widget">
+            <h3>Staff Productivity</h3>
+            <div class="chart-container">
+              <canvas id="staffProductivityChart"></canvas>
+              <div class="loading-overlay">
+                <div class="loading-spinner"></div>
+              </div>
+            </div>
+          </div>
+          
+          <div class="data-widget">
+            <h3>Patient Ratings by Provider</h3>
+            <div class="chart-container">
+              <canvas id="providerRatingsChart"></canvas>
+              <div class="loading-overlay">
+                <div class="loading-spinner"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="data-widget">
+          <h3>Staff Availability</h3>
+          <div class="chart-container">
+            <canvas id="staffAvailabilityChart"></canvas>
+            <div class="loading-overlay">
+              <div class="loading-spinner"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Finance Section -->
+      <div id="finance-section" class="detail-section hidden">
+        <button class="back-button flex items-center text-indigo-600 mb-6 font-medium">
+          <i class="fas fa-arrow-left mr-2"></i> Back to Dashboard
+        </button>
+        <h2 class="text-2xl font-bold text-indigo-900 mb-4">Médico en tu casa</h2>
+        <p class="text-gray-700 mb-8">Track revenue, expenses, and profit margins across different departments and services. Monitor insurance claim status and identify areas for financial optimization.</p>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+          <div class="data-widget">
+            <h3>Revenue by Service</h3>
+            <div class="chart-container">
+              <canvas id="revenueByServiceChart"></canvas>
+              <div class="loading-overlay">
+                <div class="loading-spinner"></div>
+              </div>
+            </div>
+          </div>
+          
+          <div class="data-widget">
+            <h3>Monthly Revenue vs Expenses</h3>
+            <div class="chart-container">
+              <canvas id="revenueExpensesChart"></canvas>
+              <div class="loading-overlay">
+                <div class="loading-spinner"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="data-widget">
+          <h3>Insurance Claim Status</h3>
+          <div class="chart-container">
+            <canvas id="insuranceClaimsChart"></canvas>
+            <div class="loading-overlay">
+              <div class="loading-spinner"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Inventory Section -->
+      <div id="inventory-section" class="detail-section hidden">
+        <button class="back-button flex items-center text-indigo-600 mb-6 font-medium">
+          <i class="fas fa-arrow-left mr-2"></i> Back to Dashboard
+        </button>
+        <h2 class="text-2xl font-bold text-indigo-900 mb-4">Beneficencia pública</h2>
+        <p class="text-gray-700 mb-8">Monitor stock levels, track usage patterns, and identify items that need restocking. Optimize inventory to reduce waste and ensure supplies are available when needed.</p>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+          <div class="data-widget">
+            <h3>Low Stock Items</h3>
+            <div class="chart-container">
+              <canvas id="lowStockChart"></canvas>
+              <div class="loading-overlay">
+                <div class="loading-spinner"></div>
+              </div>
+            </div>
+          </div>
+          
+          <div class="data-widget">
+            <h3>Inventory Usage Trends</h3>
+            <div class="chart-container">
+              <canvas id="inventoryUsageChart"></canvas>
+              <div class="loading-overlay">
+                <div class="loading-spinner"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="data-widget">
+          <h3>Inventory Value by Category</h3>
+          <div class="chart-container">
+            <canvas id="inventoryValueChart"></canvas>
+            <div class="loading-overlay">
+              <div class="loading-spinner"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Treatments Section -->
+      <div id="treatments-section" class="detail-section hidden">
+        <button class="back-button flex items-center text-indigo-600 mb-6 font-medium">
+          <i class="fas fa-arrow-left mr-2"></i> Back to Dashboard
+        </button>
+        <h2 class="text-2xl font-bold text-indigo-900 mb-4">Ferias de la salud</h2>
+        <p class="text-gray-700 mb-8">Track popular treatments, success rates, and patient outcomes. Analyze treatment effectiveness and patient progress to improve clinical protocols.</p>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+          <div class="data-widget">
+            <h3>Popular Treatments</h3>
+            <div class="chart-container">
+              <canvas id="popularTreatmentsChart"></canvas>
+              <div class="loading-overlay">
+                <div class="loading-spinner"></div>
+              </div>
+            </div>
+          </div>
+          
+          <div class="data-widget">
+            <h3>Treatment Success Rates</h3>
+            <div class="chart-container">
+              <canvas id="treatmentSuccessChart"></canvas>
+              <div class="loading-overlay">
+                <div class="loading-spinner"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="data-widget">
+          <h3>Patient Outcomes by Treatment Type</h3>
+          <div class="chart-container">
+            <canvas id="patientOutcomesChart"></canvas>
+            <div class="loading-overlay">
+              <div class="loading-spinner"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Marketing Section -->
+      <div id="marketing-section" class="detail-section hidden">
+        <button class="back-button flex items-center text-indigo-600 mb-6 font-medium">
+          <i class="fas fa-arrow-left mr-2"></i> Back to Dashboard
+        </button>
+        <h2 class="text-2xl font-bold text-indigo-900 mb-4">COESPRIS</h2>
+        <p class="text-gray-700 mb-8">Track marketing campaign effectiveness, new patient acquisition sources, and return on marketing investment. Optimize your marketing strategy to attract and retain patients.</p>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+          <div class="data-widget">
+            <h3>Patient Acquisition by Channel</h3>
+            <div class="chart-container">
+              <canvas id="acquisitionChannelChart"></canvas>
+              <div class="loading-overlay">
+                <div class="loading-spinner"></div>
+              </div>
+            </div>
+          </div>
+          
+          <div class="data-widget">
+            <h3>Campaign Performance</h3>
+            <div class="chart-container">
+              <canvas id="campaignPerformanceChart"></canvas>
+              <div class="loading-overlay">
+                <div class="loading-spinner"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="data-widget">
+          <h3>Marketing ROI</h3>
+          <div class="chart-container">
+            <canvas id="marketingROIChart"></canvas>
+            <div class="loading-overlay">
+              <div class="loading-spinner"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Analytics Section -->
+      <div id="analytics-section" class="detail-section hidden">
+        <button class="back-button flex items-center text-indigo-600 mb-6 font-medium">
+          <i class="fas fa-arrow-left mr-2"></i> Back to Dashboard
+        </button>
+        <h2 class="text-2xl font-bold text-indigo-900 mb-4">Vacunación</h2>
+        <p class="text-gray-700 mb-8">Access comprehensive business metrics including growth trends, operational efficiency, and key performance indicators. Use these insights to drive strategic decision-making.</p>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+          <div class="data-widget">
+            <h3>Business Growth Trends</h3>
+            <div class="chart-container">
+              <canvas id="growthTrendsChart"></canvas>
+              <div class="loading-overlay">
+                <div class="loading-spinner"></div>
+              </div>
+            </div>
+          </div>
+          
+          <div class="data-widget">
+            <h3>Operational Efficiency</h3>
+            <div class="chart-container">
+              <canvas id="operationalEfficiencyChart"></canvas>
+              <div class="loading-overlay">
+                <div class="loading-spinner"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="data-widget">
+          <h3>Key Performance Indicators</h3>
+          <div class="chart-container">
+            <canvas id="kpiChart"></canvas>
+            <div class="loading-overlay">
+              <div class="loading-spinner"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script id="app-script">
+    // 1) Define a mapping of sectionId → magic‐loop ID
+    const loopIds = {
+      patients:     '69bf7b43-bc1c-4e2b-899f-0512cd288738',
+      appointments: '69bf7b43-bc1c-4e2b-899f-0512cd288738',
+      staff:        '69bf7b43-bc1c-4e2b-899f-0512cd288738',
+      finance:      '69bf7b43-bc1c-4e2b-899f-0512cd288738',
+      inventory:    '69bf7b43-bc1c-4e2b-899f-0512cd288738',
+      treatments:   '69bf7b43-bc1c-4e2b-899f-0512cd288738',
+      marketing:    '69bf7b43-bc1c-4e2b-899f-0512cd288738',
+      analytics:    '9a712580-0b5a-4b99-8c1d-5e07fa4a8b49'  // example of using your second ID here
+    };
+
+    document.addEventListener('DOMContentLoaded', function() {
+      const dashboardButtons = document.querySelectorAll('.dashboard-btn');
+      const homeScreen = document.getElementById('home-screen');
+      const detailScreens = document.getElementById('detail-screens');
+      const detailSections = document.querySelectorAll('.detail-section');
+      const backButtons = document.querySelectorAll('.back-button');
+      
+      // Function to show a specific detail section
+      function showDetailSection(sectionId) {
+        // Hide home screen
+        homeScreen.classList.add('hidden');
+        
+        // Show detail screens container
+        detailScreens.classList.remove('hidden');
+        
+        // Hide all detail sections
+        detailSections.forEach(section => {
+          section.classList.add('hidden');
+        });
+        
+        // Show the selected section
+        const targetSection = document.getElementById(`${sectionId}-section`);
+        if (targetSection) {
+          targetSection.classList.remove('hidden');
+          
+          // Initialize data fetching for this section
+          initializeDataFetching(sectionId);
+        }
+      }
+      
+      // Function to go back to home screen
+      function backToHome() {
+        // Hide detail screens
+        detailScreens.classList.add('hidden');
+        
+        // Show home screen
+        homeScreen.classList.remove('hidden');
+        
+        // Clear any active polling
+        clearDataPolling();
+      }
+      
+      // Add click event listeners to dashboard buttons
+      dashboardButtons.forEach(button => {
+        button.addEventListener('click', function() {
+          const section = this.getAttribute('data-section');
+          showDetailSection(section);
+        });
+      });
+      
+      // Add click event listeners to back buttons
+      backButtons.forEach(button => {
+        button.addEventListener('click', backToHome);
+      });
+      
+      // Data fetching and polling setup
+      let pollingInterval = null;
+      
+      function clearDataPolling() {
+        if (pollingInterval) {
+          clearInterval(pollingInterval);
+          pollingInterval = null;
+        }
+      }
+      
+      function initializeDataFetching(sectionId) {
+        // Clear any existing polling
+        clearDataPolling();
+        
+        // Fetch data immediately
+        fetchSectionData(sectionId);
+        
+        // Set up polling every 30 seconds
+        pollingInterval = setInterval(() => {
+          fetchSectionData(sectionId);
+        }, 30000);
+      }
+      
+      async function fetchSectionData(sectionId) {
+        // Show loading…
+        const loadingOverlays = document.querySelectorAll(`#${sectionId}-section .loading-overlay`);
+        loadingOverlays.forEach(o => o.style.display = 'flex');
+
+        try {
+          // 2) Look up the correct Loop ID for this section
+          const loopId = loopIds[sectionId];
+          const response = await fetch(
+            `https://magicloops.dev/api/loop/${loopId}/run`,
+            {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ sectionId }),
+            }
+          );
+          const data = await response.json();
+          updateCharts(sectionId, data);
+        } catch (err) {
+          console.error('Loop error:', err);
+        } finally {
+          loadingOverlays.forEach(o => o.style.display = 'none');
+        }
+      }
+      
+      function updateCharts(sectionId, data) {
+        // Initialize charts based on the section
+        switch(sectionId) {
+          case 'patients':
+            initializePatientCharts(data);
+            break;
+          case 'appointments':
+            initializeAppointmentCharts(data);
+            break;
+          case 'staff':
+            initializeStaffCharts(data);
+            break;
+          case 'finance':
+            initializeFinanceCharts(data);
+            break;
+          case 'inventory':
+            initializeInventoryCharts(data);
+            break;
+          case 'treatments':
+            initializeTreatmentCharts(data);
+            break;
+          case 'marketing':
+            initializeMarketingCharts(data);
+            break;
+          case 'analytics':
+            initializeAnalyticsCharts(data);
+            break;
+        }
+      }
+      
+      // Initialize chart functions for each section
+      // These would be populated with real data in the production version
+      
+      function initializePatientCharts(data) {
+        // Patient Demographics Chart
+        const demographicsCtx = document.getElementById('patientDemographicsChart').getContext('2d');
+        new Chart(demographicsCtx, {
+          type: 'pie',
+          data: {
+            labels: ['18-30', '31-45', '46-60', '61+'],
+            datasets: [{
+              data: [25, 35, 25, 15],
+              backgroundColor: ['#3b82f6', '#60a5fa', '#93c5fd', '#bfdbfe']
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+              legend: {
+                position: 'right'
+              },
+              tooltip: {
+                callbacks: {
+                  label: function(context) {
+                    return `${context.label}: ${context.raw}%`;
+                  }
+                }
+              }
+            }
+          }
+        });
+        
+        // Patient Retention Chart
+        const retentionCtx = document.getElementById('patientRetentionChart').getContext('2d');
+        new Chart(retentionCtx, {
+          type: 'doughnut',
+          data: {
+            labels: ['New Patients', 'Returning Patients'],
+            datasets: [{
+              data: [30, 70],
+              backgroundColor: ['#10b981', '#34d399']
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+              legend: {
+                position: 'right'
+              },
+              tooltip: {
+                callbacks: {
+                  label: function(context) {
+                    return `${context.label}: ${context.raw}%`;
+                  }
+                }
+              }
+            }
+          }
+        });
+        
+        // Satisfaction Score Chart
+        const satisfactionCtx = document.getElementById('satisfactionScoreChart').getContext('2d');
+        new Chart(satisfactionCtx, {
+          type: 'bar',
+          data: {
+            labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+            datasets: [{
+              label: 'Satisfaction Score (out of 5)',
+              data: [4.2, 4.3, 4.5, 4.4, 4.6, 4.7],
+              backgroundColor: '#8b5cf6'
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+              y: {
+                beginAtZero: true,
+                max: 5
+              }
+            }
+          }
+        });
+      }
+      
+      function initializeAppointmentCharts(data) {
+        // Upcoming Appointments Chart
+        const upcomingCtx = document.getElementById('upcomingAppointmentsChart').getContext('2d');
+        new Chart(upcomingCtx, {
+          type: 'line',
+          data: {
+            labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+            datasets: [{
+              label: 'Appointments',
+              data: [15, 22, 18, 25, 20, 12, 5],
+              borderColor: '#10b981',
+              backgroundColor: 'rgba(16, 185, 129, 0.1)',
+              fill: true,
+              tension: 0.4
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+              y: {
+                beginAtZero: true
+              }
+            }
+          }
+        });
+        
+        // No-Show Rate Chart
+        const noShowCtx = document.getElementById('noShowRateChart').getContext('2d');
+        new Chart(noShowCtx, {
+          type: 'bar',
+          data: {
+            labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+            datasets: [{
+              label: 'No-Show Rate (%)',
+              data: [8, 7, 9, 6, 5, 4],
+              backgroundColor: '#f87171'
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+              y: {
+                beginAtZero: true,
+                max: 15
+              }
+            }
+          }
+        });
+        
+        // Appointments by Practitioner Chart
+        const practitionerCtx = document.getElementById('appointmentsByPractitionerChart').getContext('2d');
+        new Chart(practitionerCtx, {
+          type: 'bar',  // Changed from 'horizontalBar' to 'bar'
+          data: {
+            labels: ['Dr. Smith', 'Dr. Johnson', 'Dr. Williams', 'Dr. Brown', 'Dr. Davis'],
+            datasets: [{
+              label: 'Appointments This Week',
+              data: [28, 32, 19, 24, 22],
+              backgroundColor: '#60a5fa'
+            }]
+          },
+          options: {
+            indexAxis: 'y',
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+              x: {
+                beginAtZero: true
+              }
+            }
+          }
+        });
+      }
+      
+      function initializeStaffCharts(data) {
+        // Staff Productivity Chart
+        const productivityCtx = document.getElementById('staffProductivityChart').getContext('2d');
+        new Chart(productivityCtx, {
+          type: 'radar',
+          data: {
+            labels: ['Patient Care', 'Admin Tasks', 'Training', 'Team Collaboration', 'Patient Follow-up'],
+            datasets: [{
+              label: 'Current Month',
+              data: [90, 75, 60, 80, 85],
+              backgroundColor: 'rgba(124, 58, 237, 0.2)',
+              borderColor: '#7c3aed',
+              pointBackgroundColor: '#7c3aed'
+            }, {
+              label: 'Previous Month',
+              data: [80, 70, 65, 75, 80],
+              backgroundColor: 'rgba(209, 213, 219, 0.2)',
+              borderColor: '#9ca3af',
+              pointBackgroundColor: '#9ca3af'
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+              r: {
+                min: 0,
+                max: 100
+              }
+            }
+          }
+        });
+        
+        // Provider Ratings Chart
+        const ratingsCtx = document.getElementById('providerRatingsChart').getContext('2d');
+        new Chart(ratingsCtx, {
+          type: 'bar',
+          data: {
+            labels: ['Dr. Smith', 'Dr. Johnson', 'Dr. Williams', 'Dr. Brown', 'Dr. Davis'],
+            datasets: [{
+              label: 'Patient Rating (out of 5)',
+              data: [4.8, 4.6, 4.9, 4.7, 4.5],
+              backgroundColor: '#8b5cf6'
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+              y: {
+                beginAtZero: true,
+                max: 5
+              }
+            }
+          }
+        });
+        
+        // Staff Availability Chart
+        const availabilityCtx = document.getElementById('staffAvailabilityChart').getContext('2d');
+        new Chart(availabilityCtx, {
+          type: 'line',
+          data: {
+            labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+            datasets: [{
+              label: 'Available Staff',
+              data: [12, 15, 14, 13, 12, 8, 6],
+              borderColor: '#3b82f6',
+              backgroundColor: 'rgba(59, 130, 246, 0.1)',
+              fill: true,
+              tension: 0.4
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+              y: {
+                beginAtZero: true
+              }
+            }
+          }
+        });
+      }
+      
+      function initializeFinanceCharts(data) {
+        // Revenue by Service Chart
+        const revenueServiceCtx = document.getElementById('revenueByServiceChart').getContext('2d');
+        new Chart(revenueServiceCtx, {
+          type: 'pie',
+          data: {
+            labels: ['Consultations', 'Treatments', 'Procedures', 'Products', 'Other'],
+            datasets: [{
+              data: [35, 25, 20, 15, 5],
+              backgroundColor: ['#f59e0b', '#fbbf24', '#fcd34d', '#fde68a', '#fef3c7']
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+              legend: {
+                position: 'right'
+              },
+              tooltip: {
+                callbacks: {
+                  label: function(context) {
+                    return `${context.label}: ${context.raw}%`;
+                  }
+                }
+              }
+            }
+          }
+        });
+        
+        // Revenue vs Expenses Chart
+        const revenueExpensesCtx = document.getElementById('revenueExpensesChart').getContext('2d');
+        new Chart(revenueExpensesCtx, {
+          type: 'bar',
+          data: {
+            labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+            datasets: [{
+              label: 'Revenue',
+              data: [45000, 48000, 52000, 49000, 54000, 58000],
+              backgroundColor: '#10b981'
+            }, {
+              label: 'Expenses',
+              data: [35000, 36000, 37000, 36500, 38000, 39000],
+              backgroundColor: '#f87171'
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+              y: {
+                beginAtZero: true
+              }
+            }
+          }
+        });
+        
+        // Insurance Claims Chart
+        const claimsCtx = document.getElementById('insuranceClaimsChart').getContext('2d');
+        new Chart(claimsCtx, {
+          type: 'doughnut',
+          data: {
+            labels: ['Approved', 'Pending', 'Rejected', 'In Review'],
+            datasets: [{
+              data: [65, 20, 5, 10],
+              backgroundColor: ['#10b981', '#f59e0b', '#ef4444', '#6b7280']
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+              legend: {
+                position: 'right'
+              },
+              tooltip: {
+                callbacks: {
+                  label: function(context) {
+                    return `${context.label}: ${context.raw}%`;
+                  }
+                }
+              }
+            }
+          }
+        });
+      }
+      
+      function initializeInventoryCharts(data) {
+        // Low Stock Items Chart
+        const lowStockCtx = document.getElementById('lowStockChart').getContext('2d');
+        new Chart(lowStockCtx, {
+          type: 'bar',
+          data: {
+            labels: ['Medical Supplies', 'Medications', 'Office Supplies', 'Equipment', 'Cleaning Supplies'],
+            datasets: [{
+              label: 'Items Below Threshold',
+              data: [3, 5, 2, 1, 4],
+              backgroundColor: '#ef4444'
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+              y: {
+                beginAtZero: true
+              }
+            }
+          }
+        });
+        
+        // Inventory Usage Chart
+        const usageCtx = document.getElementById('inventoryUsageChart').getContext('2d');
+        new Chart(usageCtx, {
+          type: 'line',
+          data: {
+            labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+            datasets: [{
+              label: 'Usage Rate',
+              data: [80, 85, 75, 90, 95, 88],
+              borderColor: '#3b82f6',
+              backgroundColor: 'rgba(59, 130, 246, 0.1)',
+              fill: true,
+              tension: 0.4
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+              y: {
+                beginAtZero: true,
+                max: 100
+              }
+            }
+          }
+        });
+        
+        // Inventory Value Chart
+        const valueCtx = document.getElementById('inventoryValueChart').getContext('2d');
+        new Chart(valueCtx, {
+          type: 'bar',
+          data: {
+            labels: ['Medical Supplies', 'Medications', 'Office Supplies', 'Equipment', 'Cleaning Supplies'],
+            datasets: [{
+              label: 'Value ($)',
+              data: [25000, 35000, 8000, 45000, 5000],
+              backgroundColor: '#8b5cf6'
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+              y: {
+                beginAtZero: true
+              }
+            }
+          }
+        });
+      }
+      
+      function initializeTreatmentCharts(data) {
+        // Popular Treatments Chart
+        const popularCtx = document.getElementById('popularTreatmentsChart').getContext('2d');
+        new Chart(popularCtx, {
+          type: 'bar',
+          data: {
+            labels: ['Treatment A', 'Treatment B', 'Treatment C', 'Treatment D', 'Treatment E'],
+            datasets: [{
+              label: 'Patients',
+              data: [120, 95, 85, 75, 60],
+              backgroundColor: '#3b82f6'
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+              y: {
+                beginAtZero: true
+              }
+            }
+          }
+        });
+        
+        // Treatment Success Chart
+        const successCtx = document.getElementById('treatmentSuccessChart').getContext('2d');
+        new Chart(successCtx, {
+          type: 'bar',
+          data: {
+            labels: ['Treatment A', 'Treatment B', 'Treatment C', 'Treatment D', 'Treatment E'],
+            datasets: [{
+              label: 'Success Rate (%)',
+              data: [92, 88, 95, 86, 90],
+              backgroundColor: '#10b981'
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+              y: {
+                beginAtZero: true,
+                max: 100
+              }
+            }
+          }
+        });
+        
+        // Patient Outcomes Chart
+        const outcomesCtx = document.getElementById('patientOutcomesChart').getContext('2d');
+        new Chart(outcomesCtx, {
+          type: 'line',
+          data: {
+            labels: ['Week 1', 'Week 2', 'Week 3', 'Week 4', 'Week 5', 'Week 6'],
+            datasets: [{
+              label: 'Treatment A',
+              data: [20, 40, 60, 75, 85, 90],
+              borderColor: '#3b82f6',
+              backgroundColor: 'rgba(59, 130, 246, 0.1)',
+              fill: true,
+              tension: 0.4
+            }, {
+              label: 'Treatment B',
+              data: [15, 35, 55, 70, 80, 85],
+              borderColor: '#10b981',
+              backgroundColor: 'rgba(16, 185, 129, 0.1)',
+              fill: true,
+              tension: 0.4
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+              y: {
+                beginAtZero: true,
+                max: 100
+              }
+            }
+          }
+        });
+      }
+      
+      function initializeMarketingCharts(data) {
+        // Patient Acquisition Chart
+        const acquisitionCtx = document.getElementById('acquisitionChannelChart').getContext('2d');
+        new Chart(acquisitionCtx, {
+          type: 'pie',
+          data: {
+            labels: ['Referrals', 'Social Media', 'Website', 'Search Engines', 'Local Ads'],
+            datasets: [{
+              data: [40, 20, 15, 15, 10],
+              backgroundColor: ['#ec4899', '#f472b6', '#f9a8d4', '#fbcfe8', '#fce7f3']
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+              legend: {
+                position: 'right'
+              },
+              tooltip: {
+                callbacks: {
+                  label: function(context) {
+                    return `${context.label}: ${context.raw}%`;
+                  }
+                }
+              }
+            }
+          }
+        });
+        
+        // Campaign Performance Chart
+        const campaignCtx = document.getElementById('campaignPerformanceChart').getContext('2d');
+        new Chart(campaignCtx, {
+          type: 'bar',
+          data: {
+            labels: ['Campaign A', 'Campaign B', 'Campaign C', 'Campaign D'],
+            datasets: [{
+              label: 'New Patients',
+              data: [45, 35, 60, 25],
+              backgroundColor: '#8b5cf6'
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+              y: {
+                beginAtZero: true
+              }
+            }
+          }
+        });
+        
+        // Marketing ROI Chart
+        const roiCtx = document.getElementById('marketingROIChart').getContext('2d');
+        new Chart(roiCtx, {
+          type: 'line',
+          data: {
+            labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+            datasets: [{
+              label: 'ROI (%)',
+              data: [150, 180, 200, 220, 250, 280],
+              borderColor: '#ec4899',
+              backgroundColor: 'rgba(236, 72, 153, 0.1)',
+              fill: true,
+              tension: 0.4
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+              y: {
+                beginAtZero: true
+              }
+            }
+          }
+        });
+      }
+      
+      function initializeAnalyticsCharts(data) {
+        // Business Growth Chart
+        const growthCtx = document.getElementById('growthTrendsChart').getContext('2d');
+        new Chart(growthCtx, {
+          type: 'line',
+          data: {
+            labels: ['2020', '2021', '2022', '2023', '2024', '2025 (Projected)'],
+            datasets: [{
+              label: 'Patients',
+              data: [500, 700, 1000, 1300, 1600, 2000],
+              borderColor: '#3b82f6',
+              backgroundColor: 'rgba(59, 130, 246, 0.1)',
+              fill: true,
+              tension: 0.4
+            }, {
+              label: 'Revenue ($K)',
+              data: [200, 300, 450, 600, 800, 1000],
+              borderColor: '#10b981',
+              backgroundColor: 'rgba(16, 185, 129, 0.1)',
+              fill: true,
+              tension: 0.4
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+              y: {
+                beginAtZero: true
+              }
+            }
+          }
+        });
+        
+        // Operational Efficiency Chart
+        const efficiencyCtx = document.getElementById('operationalEfficiencyChart').getContext('2d');
+        new Chart(efficiencyCtx, {
+          type: 'bar',
+          data: {
+            labels: ['Patient Processing', 'Treatment Delivery', 'Admin Tasks', 'Follow-up', 'Billing'],
+            datasets: [{
+              label: 'Efficiency Score (out of 100)',
+              data: [85, 90, 75, 80, 70],
+              backgroundColor: '#8b5cf6'
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+              y: {
+                beginAtZero: true,
+                max: 100
+              }
+            }
+          }
+        });
+        
+        // KPI Chart
+        const kpiCtx = document.getElementById('kpiChart').getContext('2d');
+        new Chart(kpiCtx, {
+          type: 'radar',
+          data: {
+            labels: ['Patient Satisfaction', 'Staff Productivity', 'Financial Performance', 'Marketing Effectiveness', 'Treatment Outcomes'],
+            datasets: [{
+              label: 'Current Period',
+              data: [90, 85, 80, 75, 95],
+              backgroundColor: 'rgba(14, 165, 233, 0.2)',
+              borderColor: '#0ea5e9',
+              pointBackgroundColor: '#0ea5e9'
+            }, {
+              label: 'Previous Period',
+              data: [80, 80, 75, 70, 85],
+              backgroundColor: 'rgba(209, 213, 219, 0.2)',
+              borderColor: '#9ca3af',
+              pointBackgroundColor: '#9ca3af'
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+              r: {
+                min: 0,
+                max: 100
+              }
+            }
+          }
+        });
+      }
+    });
+  </script>
 </body>
 </html>
